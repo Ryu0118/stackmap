@@ -1,0 +1,34 @@
+import ArgumentParser
+
+/// `stackmap render`: reads a stack map file and writes the HTML page.
+///
+/// Writes to `--output` when given, otherwise to standard output. On a load
+/// or scope error it prints one `error: ` line per problem to standard error
+/// and exits with status 1 without writing any output file.
+package struct RenderCommand: AsyncParsableCommand {
+    /// The subcommand name and help text.
+    package static let configuration = CommandConfiguration(
+        commandName: "render",
+        abstract: "Render a stack map file as an HTML page."
+    )
+
+    /// The stack map file to read.
+    @Argument(help: "The stack map file to read.")
+    package var config = "stackmap.yml"
+
+    /// Where to write the page; standard output when omitted.
+    @Option(name: [.short, .long], help: "Where to write the HTML page. Defaults to standard output.")
+    package var output: String?
+
+    /// The scope to render on its own; the whole system when omitted.
+    @Option(help: "Render only this scope id.")
+    package var scope: String?
+
+    /// Creates the command; ArgumentParser fills in options after parsing.
+    package init() {}
+
+    /// Runs the command.
+    package func run() async throws {
+        fatalError("Not implemented")
+    }
+}
