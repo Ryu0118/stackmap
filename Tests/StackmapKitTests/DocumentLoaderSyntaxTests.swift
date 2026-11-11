@@ -173,6 +173,14 @@ struct DocumentLoaderSyntaxTests {
         #expect(document.scopes == [Scope(id: id, label: "Scope")])
     }
 
+    @Test("a null value is a missing key", arguments: ["id:", "id: null", "id: ~"])
+    func nullIsMissing(line: String) {
+        let issues = loader.issues(in: "version: 1\nscopes:\n  - \(line)\n    label: Scope\n")
+
+        // Catches null being read as the text "null" or an empty id.
+        #expect(issues == [.missingKey(path: "scopes[0].id")])
+    }
+
     @Test("Shop and shop are different ids")
     func idsAreCaseSensitive() throws {
         let yaml = "version: 1\nscopes:\n  - id: Shop\n    label: A\n  - id: shop\n    label: B\n"
