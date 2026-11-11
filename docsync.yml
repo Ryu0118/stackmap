@@ -1,0 +1,23 @@
+rules:
+- name: configuration-reference
+  sources:
+  - Sources/StackmapKit/Model/*.swift
+  - Sources/StackmapKit/Loading/*.swift
+  - Sources/StackmapKit/Scoping/*.swift
+  - Sources/StackmapKit/Layout/*.swift
+  doc: Sources/StackmapKit/StackmapKit.docc/ConfigurationFile.md
+  message: Schema, validation, scoping, or layout changed - update the configuration
+    reference.
+  checksum: 9fc952d4ee5532cf238e22fb5fdde6ba4d89577d07570102a315f784543009d3
+- name: readme-cli
+  sources:
+  - Sources/StackmapCLI/*.swift
+  - Sources/StackmapKit/Model/*.swift
+  doc: README.md
+  message: CLI surface or schema changed - update the README Quick Start and Commands
+    table.
+  checksum: cafd44659a3c0d4823e9fe96407347fe896e09d12625bcb1c31138adc602ef6f
+excludes:
+- '**/.build/**'
+- .git/**
+- '**/.swiftpm/**'
