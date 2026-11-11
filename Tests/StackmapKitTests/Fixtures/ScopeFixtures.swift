@@ -87,4 +87,15 @@ enum ScopeFixtures {
             Service(id: "a", label: "A", provider: "edge", scopes: ["shop"]),
         ]
     )
+
+    static let serviceCalls = StackmapDocument(
+        scopes: scopes,
+        providers: [edge],
+        services: [
+            Service(id: "a", label: "A", provider: "edge", scopes: ["shop"], calls: ["b", "c"]),
+            Service(id: "b", label: "B", provider: "edge", scopes: ["shop"]),
+            Service(id: "c", label: "C", provider: "edge", scopes: ["ops"]),
+            Service(id: "d", label: "D", provider: "edge", calls: ["a", "c"]),
+        ]
+    )
 }
