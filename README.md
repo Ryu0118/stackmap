@@ -14,7 +14,7 @@ piece of data lives and who owns it.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="asset/example~dark.png">
-  <img alt="A rendered stack map: clients on top calling services grouped by provider and scope, the stores each service owns below them, and shared stores on another provider at the bottom" src="asset/example.png">
+  <img alt="A rendered stack map: clients on top calling services that are grouped by provider and scope, a service calling another, the data each service owns below it, and data in stores on another provider at the bottom of that provider" src="asset/example.png">
 </picture>
 
 ## Features

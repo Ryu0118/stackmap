@@ -68,6 +68,7 @@ services:
     description: Invitations
     provider: edge
     scopes: [partner]
+    calls: [api]
   - id: partner-api
     label: partner-api
     description: Partner API

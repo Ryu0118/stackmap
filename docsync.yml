@@ -8,7 +8,7 @@ rules:
   doc: Sources/StackmapKit/StackmapKit.docc/ConfigurationFile.md
   message: Schema, validation, scoping, or layout changed - update the configuration
     reference.
-  checksum: 5818974455696a6a079b708d6fdfa74bd3360419480741c4d5ae14937d24b5ff
+  checksum: db9c8b6093410d711333628dd0f54db69a4525c8b9d394f5cdd190bb0221ba5c
 - name: readme-cli
   sources:
   - Sources/StackmapCLI/*.swift
@@ -16,7 +16,7 @@ rules:
   doc: README.md
   message: CLI surface or schema changed - update the README Quick Start and Commands
     table.
-  checksum: 49908077163a0205ce9867116abb65263684a809e8d1e60dcd7f9a660984e301
+  checksum: 323c26c70ca462a07158f3893b6bbe206860f8372ab071efb03eb1ab5bd03bc4
 excludes:
 - '**/.build/**'
 - .git/**
