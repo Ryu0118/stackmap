@@ -3,7 +3,7 @@ struct ReferenceValidator {
     private(set) var issues: [DocumentIssue] = []
 
     mutating func validate(_ decoded: DecodedDocument) {
-        let scopeIDs = checkIDs(decoded.scopes.map { ($0.index, $0.value.id) }, list: "scopes")
+        let scopeIDs = checkIDs(decoded.scopes.map { ($0.index, $0.value.id) }, list: "scopes", reserved: [Self.wholeSystemScopeID])
         let providerIDs = checkIDs(decoded.providers.map { ($0.index, $0.value.id) }, list: "providers")
         let storeIDs = checkIDs(decoded.stores.map { ($0.index, $0.value.id) }, list: "stores")
         _ = checkIDs(decoded.clients.map { ($0.index, $0.value.id) }, list: "clients")
@@ -40,12 +40,15 @@ struct ReferenceValidator {
         }
     }
 
-    /// Reports invalid and duplicate ids and returns the set of ids declared.
-    private mutating func checkIDs(_ entries: [(Int, String)], list: String) -> Set<String> {
+    /// The scope id the page uses for the whole-system view.
+    private static let wholeSystemScopeID = "all"
+
+    /// Reports invalid, reserved, and duplicate ids and returns the set of ids declared.
+    private mutating func checkIDs(_ entries: [(Int, String)], list: String, reserved: Set<String> = []) -> Set<String> {
         var seen: Set<String> = []
         for (index, id) in entries {
             let path = "\(list)[\(index)].id"
-            if !Self.isValidID(id) {
+            if !Self.isValidID(id) || reserved.contains(id) {
                 issues.append(.invalidID(path: path, id: id))
             }
             if !seen.insert(id).inserted {

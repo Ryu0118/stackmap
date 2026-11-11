@@ -8,7 +8,7 @@ rules:
   doc: Sources/StackmapKit/StackmapKit.docc/ConfigurationFile.md
   message: Schema, validation, scoping, or layout changed - update the configuration
     reference.
-  checksum: 9fc952d4ee5532cf238e22fb5fdde6ba4d89577d07570102a315f784543009d3
+  checksum: 5818974455696a6a079b708d6fdfa74bd3360419480741c4d5ae14937d24b5ff
 - name: readme-cli
   sources:
   - Sources/StackmapCLI/*.swift
