@@ -11,7 +11,7 @@ struct LayoutGridTests {
         #expect(layout.layout(fixture.document).overfullRows() == [])
     }
 
-    @Test("every card starts on one of four shared column positions", arguments: LayoutFixture.all)
+    @Test("client, service, and shared store cards start on one of four shared column positions", arguments: LayoutFixture.all)
     func cardsShareOneColumnGrid(fixture: LayoutFixture) {
         // Catches rows laid out independently, for example centered clients or shared stores offset from the services.
         #expect(layout.layout(fixture.document).columnGridProblems() == [])

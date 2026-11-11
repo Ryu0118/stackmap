@@ -163,9 +163,12 @@ row holds more than four cards. Rows run top to bottom:
      with a first scope sits in a scope band labeled with that scope; a group
      that wraps gets one band per row. Unscoped services sit in no scope
      band. When one scope is rendered or no scopes are declared, services
-     are not grouped and simply wrap after four.
+     are not grouped: they keep declaration order and wrap after four.
    - Under each service, one card listing the data it owns in stores on its
-     own provider, each line tagged with the store label.
+     own provider, each line tagged with the store label. It sits in the
+     service's column, indented from the service's left edge, so client,
+     service, and shared-store cards start at the column positions and the
+     indent leaves room for the service's outgoing connectors.
    - Then the provider's shared stores: stores on this provider holding data
      owned by a service on another provider, in declaration order, four to a
      row. Each is one card listing that data.

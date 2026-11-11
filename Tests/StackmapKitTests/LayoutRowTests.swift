@@ -25,7 +25,7 @@ struct LayoutRowTests {
         #expect(layout.layout(fixture.document).rowIDs(of: .service) == expected)
     }
 
-    @Test("a service's store card sits directly under it in the same column", arguments: LayoutFixture.all)
+    @Test("a service's store card sits directly under it, indented within its column", arguments: LayoutFixture.all)
     func storeCardsUnderTheirService(fixture: LayoutFixture) {
         let owners = ExpectedDiagram(fixture.document).serviceStoresOwners
 

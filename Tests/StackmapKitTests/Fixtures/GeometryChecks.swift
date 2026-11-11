@@ -38,7 +38,12 @@ extension DiagramGeometry {
         return found
     }
 
-    /// Each own-data card is in its service's column, below it, with no other card in between.
+    /// Left edges of client, service, and shared store cards; own-data cards are indented inside a column.
+    var columnPositions: [Int] {
+        Set(nodes.filter { $0.nodeID.kind != .serviceStores }.map(\.frame.x)).sorted()
+    }
+
+    /// Each own-data card is indented under its service within that service's column, below it, with no other card in between.
     func misplacedStoreCards(owners: Set<String>) -> [String] {
         owners.sorted().compactMap { owner in
             guard let service = frame(of: NodeID(kind: .service, id: owner)),
@@ -47,8 +52,11 @@ extension DiagramGeometry {
             if service.maxY > card.y {
                 return "\(owner): store card is not below its service"
             }
-            if service.x != card.x {
-                return "\(owner): store card is not in its service's column"
+            if !(service.x < card.x && card.x < service.maxX) {
+                return "\(owner): store card at x \(card.x) is not indented under its service at \(service.x)...\(service.maxX)"
+            }
+            if let next = columnPositions.first(where: { $0 > service.x }), card.maxX > next {
+                return "\(owner): store card reaches past its column into the column at \(next)"
             }
             let between = nodes.filter { $0.frame.overlapsHorizontally(service) && $0.frame.y >= service.maxY && $0.frame.maxY <= card.y }
             return between.isEmpty ? nil : "\(owner): \(between.map(\.nodeID)) sit between the service and its store card"
@@ -63,9 +71,9 @@ extension DiagramGeometry {
         }
     }
 
-    /// Every card's left edge is one of at most four column positions shared by every row.
+    /// Client, service, and shared store cards start on at most four column positions shared by every row.
     func columnGridProblems() -> [String] {
-        let columns = Set(nodes.map(\.frame.x))
-        return columns.count > ExpectedDiagram.rowCapacity ? ["cards use \(columns.count) column positions: \(columns.sorted())"] : []
+        let columns = columnPositions
+        return columns.count > ExpectedDiagram.rowCapacity ? ["cards use \(columns.count) column positions: \(columns)"] : []
     }
 }
