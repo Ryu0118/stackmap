@@ -16,6 +16,10 @@ struct ReferenceValidator {
         for entry in decoded.services {
             check(entry.value.provider, in: providerIDs, path: "services[\(entry.index)].provider")
             checkList(entry.value.scopes, in: scopeIDs, path: "services[\(entry.index)].scopes")
+            checkList(entry.value.calls, in: serviceIDs, path: "services[\(entry.index)].calls")
+            for (index, call) in entry.value.calls.enumerated() where call == entry.value.id {
+                issues.append(.selfCall(path: "services[\(entry.index)].calls[\(index)]"))
+            }
         }
         for entry in decoded.clients {
             checkList(entry.value.scopes, in: scopeIDs, path: "clients[\(entry.index)].scopes")

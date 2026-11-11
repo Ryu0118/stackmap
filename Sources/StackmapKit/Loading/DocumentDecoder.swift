@@ -15,7 +15,7 @@ struct DocumentDecoder {
             providers: decodeList(entries, key: "providers", keys: ["id", "label"]) { $0.decodeProvider($1, path: $2) },
             stores: decodeList(entries, key: "stores", keys: ["id", "label", "provider"]) { $0.decodeStore($1, path: $2) },
             clients: decodeList(entries, key: "clients", keys: ["id", "label", "description", "scopes", "calls"]) { $0.decodeClient($1, path: $2) },
-            services: decodeList(entries, key: "services", keys: ["id", "label", "description", "provider", "scopes"]) { $0.decodeService($1, path: $2) },
+            services: decodeList(entries, key: "services", keys: ["id", "label", "description", "provider", "scopes", "calls"]) { $0.decodeService($1, path: $2) },
             data: decodeList(
                 entries,
                 key: "data",

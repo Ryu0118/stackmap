@@ -16,8 +16,14 @@ package struct ScopeFilter: Sendable {
             scopes = [scope]
         }
 
-        let services = document.services.filter { Self.belongs($0.scopes, to: selection) }
-        let serviceIDs = Set(services.map(\.id))
+        let serviceIDs = Set(document.services.filter { Self.belongs($0.scopes, to: selection) }.map(\.id))
+        let services = document.services
+            .filter { serviceIDs.contains($0.id) }
+            .map { service in
+                var kept = service
+                kept.calls = service.calls.filter(serviceIDs.contains)
+                return kept
+            }
         let ownerScopes = Dictionary(document.services.map { ($0.id, $0.scopes) }, uniquingKeysWith: { first, _ in first })
         let data = document.data.filter { item in
             let effective = item.scopes.isEmpty ? ownerScopes[item.owner] ?? [] : item.scopes

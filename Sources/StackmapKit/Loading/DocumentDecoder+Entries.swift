@@ -43,8 +43,9 @@ extension DocumentDecoder {
         let description = reader.optionalString(fields, key: "description", path: path)
         let provider = reader.requiredString(fields, key: "provider", path: path)
         let scopes = reader.stringList(fields, key: "scopes", path: path)
+        let calls = reader.stringList(fields, key: "calls", path: path)
         guard let id, let label, let provider else { return nil }
 
-        return Service(id: id, label: label, description: description, provider: provider, scopes: scopes)
+        return Service(id: id, label: label, description: description, provider: provider, scopes: scopes, calls: calls)
     }
 }
