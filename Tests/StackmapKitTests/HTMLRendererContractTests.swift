@@ -18,6 +18,14 @@ struct HTMLRendererContractTests {
         Payload(raw: "it's", escapedForms: ["it&#39;s", "it&#x27;s", "it&apos;s"]),
     ]
 
+    static let marked = [
+        Payload(raw: "&", escapedForms: ["&amp;"]),
+        Payload(raw: "<", escapedForms: ["&lt;"]),
+        Payload(raw: ">", escapedForms: ["&gt;"]),
+        Payload(raw: "\"", escapedForms: ["&quot;", "&#34;", "&#x22;"]),
+        Payload(raw: "'", escapedForms: ["&#39;", "&#x27;", "&apos;"]),
+    ]
+
     static let selections: [ScopeSelection] = [.all, .scope("s1")]
 
     static let externalReferences = ["<link", "src=\"http", "src='http", "@import", "url(http", "url(//", "<iframe", "<script src"]
@@ -31,6 +39,16 @@ struct HTMLRendererContractTests {
         // Catches any field (title, label, description, identifier, note) written to HTML unescaped.
         #expect(!html.contains(payload.raw))
         #expect(payload.escapedForms.contains { html.contains($0) })
+    }
+
+    @Test("a special character followed by a combining mark is still escaped", arguments: marked, ["\u{0301}", "\u{20DD}"])
+    func combiningMarksDoNotHideSpecialCharacters(payload: Payload, mark: String) throws {
+        let text = "x\(payload.raw)\(mark)y"
+        let html = try renderer.render(RenderFixtures.document(allStringsAre: text), selection: .all)
+
+        // Catches escaping done per Character, where the character plus mark is one grapheme that never matches.
+        #expect(!html.containsScalars(payload.raw + mark))
+        #expect(payload.escapedForms.contains { html.containsScalars($0 + mark + "y") })
     }
 
     @Test("markup in user strings does not add script elements")

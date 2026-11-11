@@ -48,3 +48,15 @@ enum RenderFixtures {
         data: [DataItem(id: "orders", label: "Orders", store: "sql", owner: "api")]
     )
 }
+
+extension String {
+    /// Whether `needle` occurs as a run of Unicode scalars, ignoring grapheme and canonical-equivalence rules.
+    func containsScalars(_ needle: String) -> Bool {
+        let haystack = Array(unicodeScalars)
+        let target = Array(needle.unicodeScalars)
+        guard !target.isEmpty, haystack.count >= target.count else { return false }
+        return (0 ... haystack.count - target.count).contains { start in
+            haystack[start ..< start + target.count].elementsEqual(target)
+        }
+    }
+}
