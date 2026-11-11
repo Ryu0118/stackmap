@@ -25,7 +25,7 @@ enum PageStyle {
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink);
       font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif; }
-    header, main { max-width: 1440px; margin: 0 auto; padding: 0 16px; }
+    header, main { margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); }
     header { padding-top: 40px; display: flex; flex-direction: column; gap: 12px; }
     h1 { margin: 0; font-size: 32px; line-height: 1.2; }
     h2 { margin: 40px 0 16px; font-size: 20px; }
