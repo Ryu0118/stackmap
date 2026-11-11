@@ -5,46 +5,34 @@ import Testing
 struct LayoutScopeBandTests {
     let layout = DiagramLayout()
 
-    @Test("scope bands appear only for the whole system with declared scopes", arguments: LayoutFixture.all)
+    @Test("there is one scope band per scoped row segment, and none without grouping", arguments: LayoutFixture.all)
     func scopeBandPresence(fixture: LayoutFixture) {
         let geometry = layout.layout(fixture.document)
         let expected = ExpectedDiagram(fixture.document)
 
-        // Catches scope bands drawn for a single-scope page or for a file with no scopes.
+        // Catches scope bands drawn for a single-scope page or a file without scopes, or one band for a wrapped group.
         #expect(geometry.scopeBands.count == expected.scopeRuns.count)
         if !expected.expectsScopeBands {
             #expect(geometry.scopeBands.isEmpty)
         }
     }
 
-    @Test("each run of consecutive services with the same first scope has one band", arguments: LayoutFixture.all.filter { $0.document.selection == .all })
-    func bandPerRun(fixture: LayoutFixture) {
-        let expected = ExpectedDiagram(fixture.document)
-
-        // Catches bands that merge non-consecutive runs, split a run, or swallow neighbouring services.
-        #expect(layout.layout(fixture.document).scopeRunProblems(expected) == [])
-    }
-
-    @Test("a selected scope has no scope bands")
-    func selectedScopeHasNoBands() {
-        let geometry = layout.layout(LayoutFixture.selectedScope.document)
-
-        // Catches scope bands drawn when a single scope is rendered.
-        #expect(geometry.scopeBands.isEmpty)
+    @Test("each scoped row segment sits in a band of its scope inside its provider band", arguments: LayoutFixture.all)
+    func bandPerRowSegment(fixture: LayoutFixture) {
+        // Catches bands spanning several rows, swallowing neighbouring services, or poking out of the provider band.
+        #expect(layout.layout(fixture.document).scopeRunProblems(ExpectedDiagram(fixture.document)) == [])
     }
 
     @Test("scopes that no service uses draw no bands")
     func unusedScopesDrawNoBands() {
-        let geometry = layout.layout(LayoutFixture.scopesDeclaredButUnused.document)
-
         // Catches an empty band per declared scope.
-        #expect(geometry.scopeBands.isEmpty)
+        #expect(layout.layout(LayoutFixture.scopesDeclaredButUnused.document).scopeBands.isEmpty)
     }
 
-    @Test("scope order puts shop before ops before unscoped services")
+    @Test("scope bands follow scope order top to bottom and leave unscoped services out")
     func scopeBandsFollowOrder() {
         let geometry = layout.layout(LayoutFixture.scopeOrdering.document)
-        let bands = geometry.scopeBands.sorted { $0.frame.x < $1.frame.x }
+        let bands = geometry.scopeBands.sorted { $0.frame.y < $1.frame.y }
         let unscoped = geometry.frame(of: NodeID(kind: .service, id: "free-a"))
 
         // Pins band identity by hand. Catches bands labeled with the wrong scope, or unscoped services inside a band.
@@ -52,12 +40,20 @@ struct LayoutScopeBandTests {
         #expect(unscoped.map { frame in bands.allSatisfy { !$0.frame.intersects(frame) } } == true)
     }
 
-    @Test("the same scope in two providers gets two bands")
-    func sameScopeTwice() {
-        let geometry = layout.layout(LayoutFixture.scopedAcrossProviders.document)
-        let bands = geometry.scopeBands.sorted { $0.frame.x < $1.frame.x }
+    @Test("a group of six services wraps into two bands of its scope on two rows")
+    func wideGroupSplits() {
+        let bands = layout.layout(LayoutFixture.wideScopeGroup.document).scopeBands.sorted { $0.frame.y < $1.frame.y }
 
-        // Catches one band stretched across a provider boundary and the services between.
+        // Catches one tall band stretched over both rows, or the wrapped row left without a band.
+        #expect(bands.map(\.id) == ["shop", "shop", "ops"])
+        #expect(Set(bands.map(\.frame.y)).count == 3)
+    }
+
+    @Test("the same scope in two providers gets a band in each")
+    func sameScopeTwice() {
+        let bands = layout.layout(LayoutFixture.scopedAcrossProviders.document).scopeBands.sorted { $0.frame.y < $1.frame.y }
+
+        // Catches one band stretched across a provider boundary.
         #expect(bands.map(\.id) == ["shop", "ops", "shop", "ops"])
     }
 }

@@ -61,3 +61,64 @@ extension Segment {
         start.x == end.x || start.y == end.y
     }
 }
+
+extension DiagramGeometry {
+    /// The cards of `kind` grouped into rows: cards whose vertical extents overlap share a row.
+    /// Rows run top to bottom and each row lists its cards left to right.
+    func rows(of kind: NodeKind) -> [[DiagramNode]] {
+        let cards = nodes.filter { $0.nodeID.kind == kind }.sorted { ($0.frame.y, $0.frame.x) < ($1.frame.y, $1.frame.x) }
+        var rows: [[DiagramNode]] = []
+        var bottom = Int.min
+        for card in cards {
+            if rows.isEmpty || card.frame.y >= bottom {
+                rows.append([card])
+                bottom = card.frame.maxY
+            } else {
+                rows[rows.count - 1].append(card)
+                bottom = max(bottom, card.frame.maxY)
+            }
+        }
+        return rows.map { $0.sorted { $0.frame.x < $1.frame.x } }
+    }
+
+    func rowIDs(of kind: NodeKind) -> [[String]] {
+        rows(of: kind).map { $0.map(\.nodeID.id) }
+    }
+
+    func edges(from source: NodeID) -> [DiagramEdge] {
+        edges.filter { $0.source == source }
+    }
+}
+
+extension Rect {
+    var midX: Int {
+        x + width / 2
+    }
+
+    /// Whether the vertical extents share more than a single edge.
+    func overlapsVertically(_ other: Rect) -> Bool {
+        y < other.maxY && other.y < maxY
+    }
+}
+
+extension Segment {
+    var hasLength: Bool {
+        start != end
+    }
+
+    /// Whether the two axis-aligned segments lie on one line and share a stretch of positive length.
+    func overlapsCollinearly(_ other: Segment) -> Bool {
+        guard hasLength, other.hasLength else { return false }
+        let vertical = start.x == end.x
+        let otherVertical = other.start.x == other.end.x
+        guard vertical == otherVertical else { return false }
+        if vertical {
+            guard start.x == other.start.x else { return false }
+            return Swift.max(Swift.min(start.y, end.y), Swift.min(other.start.y, other.end.y))
+                < Swift.min(Swift.max(start.y, end.y), Swift.max(other.start.y, other.end.y))
+        }
+        guard start.y == other.start.y else { return false }
+        return Swift.max(Swift.min(start.x, end.x), Swift.min(other.start.x, other.end.x))
+            < Swift.min(Swift.max(start.x, end.x), Swift.max(other.start.x, other.end.x))
+    }
+}

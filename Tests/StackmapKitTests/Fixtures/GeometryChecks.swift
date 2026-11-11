@@ -24,16 +24,21 @@ extension DiagramGeometry {
         return cards + backgrounds
     }
 
-    func clientsNotAboveServices() -> [String] {
+    /// Clients sit above every other card and every band.
+    func clientsNotAtTheTop() -> [String] {
         var found: [String] = []
         for client in nodes where client.nodeID.kind == .client {
-            for service in nodes where service.nodeID.kind == .service && client.frame.maxY > service.frame.y {
-                found.append("\(client.nodeID) is not above \(service.nodeID)")
+            for other in nodes where other.nodeID.kind != .client && client.frame.maxY > other.frame.y {
+                found.append("\(client.nodeID) is not above \(other.nodeID)")
+            }
+            for band in bands where client.frame.maxY > band.frame.y {
+                found.append("\(client.nodeID) is not above band \(band.kind) \(band.id)")
             }
         }
         return found
     }
 
+    /// Each own-data card is in its service's column, below it, with no other card in between.
     func misplacedStoreCards(owners: Set<String>) -> [String] {
         owners.sorted().compactMap { owner in
             guard let service = frame(of: NodeID(kind: .service, id: owner)),
@@ -42,25 +47,25 @@ extension DiagramGeometry {
             if service.maxY > card.y {
                 return "\(owner): store card is not below its service"
             }
-            if !service.overlapsHorizontally(card) {
-                return "\(owner): store card is not under its service"
+            if service.x != card.x {
+                return "\(owner): store card is not in its service's column"
             }
-            return nil
+            let between = nodes.filter { $0.frame.overlapsHorizontally(service) && $0.frame.y >= service.maxY && $0.frame.maxY <= card.y }
+            return between.isEmpty ? nil : "\(owner): \(between.map(\.nodeID)) sit between the service and its store card"
         }
     }
 
-    func sharedStoresNotAtBottom() -> [String] {
-        var found: [String] = []
-        let upper = nodes.filter { $0.nodeID.kind == .service || $0.nodeID.kind == .serviceStores }
-        for shared in nodes where shared.nodeID.kind == .sharedStore {
-            for other in upper where other.frame.maxY > shared.frame.y {
-                found.append("\(shared.nodeID) is not below \(other.nodeID)")
-            }
+    /// No row of cards, whatever their kinds, holds more than four cards.
+    func overfullRows() -> [String] {
+        nodes.compactMap { node in
+            let row = nodes.filter { $0.frame.overlapsVertically(node.frame) }
+            return row.count > ExpectedDiagram.rowCapacity ? "\(node.nodeID) shares a row with \(row.count - 1) other cards" : nil
         }
-        return found
     }
 
-    func servicesOrderedLeftToRight() -> [String] {
-        nodes.filter { $0.nodeID.kind == .service }.sorted { $0.frame.x < $1.frame.x }.map(\.nodeID.id)
+    /// Every card's left edge is one of at most four column positions shared by every row.
+    func columnGridProblems() -> [String] {
+        let columns = Set(nodes.map(\.frame.x))
+        return columns.count > ExpectedDiagram.rowCapacity ? ["cards use \(columns.count) column positions: \(columns.sorted())"] : []
     }
 }

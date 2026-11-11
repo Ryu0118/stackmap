@@ -15,7 +15,8 @@ extension LayoutFixture {
         scopesDeclaredButUnused,
         selectedScope,
         noScopesDeclared,
-    ]
+        realistic,
+    ] + grid + serviceCalls
 
     static let singleService = LayoutFixture(
         name: "one service without data",

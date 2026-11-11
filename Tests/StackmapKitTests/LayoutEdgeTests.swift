@@ -5,7 +5,7 @@ import Testing
 struct LayoutEdgeTests {
     let layout = DiagramLayout()
 
-    @Test("connectors are exactly the calls, own store links, and shared store links", arguments: LayoutFixture.all)
+    @Test("connectors are exactly the client calls, service calls, own store links, and shared store links", arguments: LayoutFixture.all)
     func edgeSet(fixture: LayoutFixture) {
         let edges = layout.layout(fixture.document).edges
         let actual = edges.map { ExpectedDiagram.Link(kind: $0.kind, source: $0.source, target: $0.target) }

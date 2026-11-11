@@ -35,7 +35,7 @@ struct LayoutNodeSetTests {
     func ownProviderDataIsNotShared() {
         let geometry = layout.layout(LayoutFixture.noScopesDeclared.document)
 
-        // Catches stores on the service's own provider being drawn in the bottom row.
+        // Catches stores on the service's own provider being drawn as shared stores.
         #expect(geometry.frames(of: .sharedStore).isEmpty)
         #expect(geometry.frames(of: .serviceStores).count == 1)
     }

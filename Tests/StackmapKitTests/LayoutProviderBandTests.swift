@@ -5,32 +5,31 @@ import Testing
 struct LayoutProviderBandTests {
     let layout = DiagramLayout()
 
-    @Test("there is one band per provider with services and one per provider with shared stores", arguments: LayoutFixture.all)
-    func bandCount(fixture: LayoutFixture) {
-        let geometry = layout.layout(fixture.document)
-        let expected = ExpectedDiagram(fixture.document)
-        let withServices = Set(fixture.document.services.map(\.provider))
-        let sharedProviders = Set(fixture.document.stores.filter { expected.sharedStores.contains($0.id) }.map(\.provider))
+    @Test("each provider with a service or a shared store has exactly one band", arguments: LayoutFixture.all)
+    func oneBandPerProvider(fixture: LayoutFixture) {
+        let ids = layout.layout(fixture.document).providerBands.map(\.id)
 
-        // Catches a band missing for a provider, or one band reused for both rows.
-        #expect(geometry.providerBands.count == withServices.count + sharedProviders.count)
-        #expect(Set(geometry.providerBands.map(\.id)) == withServices.union(sharedProviders))
+        // Catches a separate bottom band for shared stores, or a band missing for a provider.
+        #expect(ids.count == Set(ids).count)
+        #expect(Set(ids) == Set(ExpectedDiagram(fixture.document).bandedProviders))
     }
 
-    @Test("a provider band contains its services and their store cards", arguments: LayoutFixture.all)
-    func serviceBandContainsItsCards(fixture: LayoutFixture) {
-        let owners = ExpectedDiagram(fixture.document).serviceStoresOwners
-
+    @Test("a provider band contains its services, their store cards, and its shared stores", arguments: LayoutFixture.all)
+    func bandContainsItsCards(fixture: LayoutFixture) {
         // Catches cards drawn outside the band of their provider.
-        #expect(layout.layout(fixture.document).serviceBandProblems(fixture.document, owners: owners) == [])
+        #expect(layout.layout(fixture.document).providerBandContentProblems(ExpectedDiagram(fixture.document)) == [])
     }
 
-    @Test("a bottom provider band contains the shared stores of that provider", arguments: LayoutFixture.all)
-    func bottomBandContainsSharedStores(fixture: LayoutFixture) {
-        let shared = ExpectedDiagram(fixture.document).sharedStores
+    @Test("provider bands are stacked top to bottom in provider order", arguments: LayoutFixture.all)
+    func bandsAreStacked(fixture: LayoutFixture) {
+        // Catches providers placed side by side, or in an order other than the declaration order.
+        #expect(layout.layout(fixture.document).providerBandStackingProblems(ExpectedDiagram(fixture.document)) == [])
+    }
 
-        // Catches shared stores placed outside any band, or a bottom band that overlaps the service rows.
-        #expect(layout.layout(fixture.document).bottomBandProblems(fixture.document, sharedStores: shared) == [])
+    @Test("a shared store sits in its own provider's band below that provider's services", arguments: LayoutFixture.all)
+    func sharedStoresInTheirBand(fixture: LayoutFixture) {
+        // Catches shared stores collected at the bottom of the page, or drawn above or beside the services.
+        #expect(layout.layout(fixture.document).sharedStorePlacementProblems(ExpectedDiagram(fixture.document)) == [])
     }
 
     @Test("provider bands do not overlap each other", arguments: LayoutFixture.all)
