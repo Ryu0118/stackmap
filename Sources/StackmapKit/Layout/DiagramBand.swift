@@ -1,7 +1,7 @@
 /// A labeled background rectangle that groups cards.
 ///
-/// A provider can have two bands: one around its services and one at the
-/// bottom around stores reached from other providers.
+/// Each provider has one band around its services and its shared stores.
+/// A scope band wraps one row segment of services with the same first scope.
 package struct DiagramBand: Hashable, Sendable {
     /// What the band groups.
     package var kind: BandKind

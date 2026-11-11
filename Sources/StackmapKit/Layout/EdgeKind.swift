@@ -2,6 +2,8 @@
 package enum EdgeKind: String, Hashable, Sendable {
     /// A client calls a service.
     case call
+    /// A service calls another service.
+    case serviceCall
     /// A service owns the data in its ``NodeKind/serviceStores`` card.
     case ownStores
     /// A service owns data in a ``NodeKind/sharedStore``.

@@ -6,6 +6,6 @@ package enum NodeKind: String, Hashable, Sendable {
     case service
     /// The card under a service listing its data on its own provider; its id is the service id.
     case serviceStores
-    /// A store on another provider than the services that reach it; its id is the store id.
+    /// A store holding data owned by a service on another provider, drawn in its own provider's band; its id is the store id.
     case sharedStore
 }

@@ -149,22 +149,56 @@ target store is shown by name only; it is not kept as a store on its own.
 
 ## The diagram
 
-The diagram is laid out in rows, top to bottom:
+The diagram places cards on one grid of columns shared by every row, and no
+row holds more than four cards. Rows run top to bottom:
 
-1. Clients. Each one sits above the services it calls, with a connector into
-   each service.
-2. Services, inside a band for their provider. Providers appear in the order
-   they are declared. Within a provider, services are ordered by their first
-   scope (the first entry of their `scopes`, ranked in the order scopes are
-   declared, unscoped services last) and then by declaration order. When the
-   whole system is rendered and the file declares scopes, consecutive
-   services in the same provider with the same first scope sit in a scope
-   band. Unscoped services sit in no scope band.
-3. Under each service, one card listing the data it owns in stores on its own
-   provider, each line tagged with the store label.
-4. At the bottom, a band per provider for stores the services reach on
-   another provider. Each such store is one card, listing its data, with a
-   connector from every service that owns data in it.
+1. Clients, in declaration order, four to a row.
+2. One band per provider, in the order providers are declared, for each
+   provider that hosts a kept service or a shared store (below). Inside it:
+   - Service rows. Services are grouped by their first scope (the first
+     entry of their `scopes`, ranked in the order scopes are declared,
+     unscoped services last), each group in declaration order. Each group
+     starts a new row and wraps after four services. When the whole system
+     is rendered and the file declares scopes, each row segment of a group
+     with a first scope sits in a scope band labeled with that scope; a group
+     that wraps gets one band per row. Unscoped services sit in no scope
+     band. When one scope is rendered or no scopes are declared, services
+     are not grouped and simply wrap after four.
+   - Under each service, one card listing the data it owns in stores on its
+     own provider, each line tagged with the store label.
+   - Then the provider's shared stores: stores on this provider holding data
+     owned by a service on another provider, in declaration order, four to a
+     row. Each is one card listing that data.
+
+A card's text is never cut off. A data line that is too long for its card
+wraps, and the card grows to fit. The width of a line is estimated
+conservatively (an East Asian wide or fullwidth character counts as one
+em, any other character as 0.65 em), so a card may be taller than its text
+needs but never shorter.
+
+### Connectors
+
+- A client calls a service (`clients[].calls`), a service calls a service
+  (`services[].calls`), and a service owns data in a shared store. Each of
+  these connectors leaves the bottom of its source card and ends with an
+  arrowhead one pixel above the top of its target card. A repeated id in
+  `calls` is drawn once.
+- A service is joined to the card listing its own data by a short straight
+  connector.
+- Connectors run only through the space between rows and the vertical
+  channels between columns (and left of the first column), never through a
+  card. Every segment is horizontal or vertical. A target may sit in a row
+  above its source, in the same row, or below it.
+- Different connectors never run along the same line. The one exception is
+  a client's own connectors: they leave from one point and share their
+  first horizontal run, like a bus. A service's outgoing connectors leave
+  from separate points on the left part of its bottom edge, and the
+  connectors into a card arrive at separate points on its top edge.
+
+In the HTML page every connector carries `data-source` and `data-target`
+attributes naming its cards as `kind:id`, such as `client:mobile` or
+`service:api`. Connectors from each client share one color. Pointing at a
+card highlights the connectors that start or end at it.
 
 `planned` data is drawn dashed. `migrating` data is drawn dashed in the accent
 color and names the target store.
