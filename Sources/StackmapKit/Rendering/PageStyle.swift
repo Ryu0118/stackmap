@@ -60,21 +60,21 @@ enum PageStyle {
     .arrowhead-shared { fill: var(--shared); }
     .card { position: absolute; display: flex; flex-direction: column; justify-content: center; gap: 0; overflow: hidden;
       padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; line-height: 24px; }
-    .card .text { display: flex; flex-direction: column; min-width: 0; line-height: 20px; }
+    .card div.text { display: flex; flex-direction: column; min-width: 0; line-height: 20px; }
     .card strong { font-size: 14px; word-break: break-all; overflow-wrap: anywhere; }
-    .card .text span { color: var(--muted); word-break: break-all; overflow-wrap: anywhere; }
+    .card div.text span { color: var(--muted); word-break: break-all; overflow-wrap: anywhere; }
     .card-client { background: var(--client); border-color: var(--client); }
-    .card-client strong, .card-client .text span { color: var(--client-ink); }
+    .card-client strong, .card-client div.text span { color: var(--client-ink); }
     .card-service { border-color: var(--band-provider-line); }
     .card-serviceStores, .card-sharedStore { justify-content: flex-start; }
     .card-sharedStore { border: 1.5px solid var(--shared); }
     .card-title { line-height: 28px; margin-bottom: 4px; }
-    .line { display: flex; align-items: flex-start; gap: 6px; min-width: 0; min-height: 24px; }
-    .line .text { display: block; min-width: 0; padding: 2px 0; line-height: 20px; word-break: break-all; overflow-wrap: anywhere; }
+    .line { display: block; min-width: 0; padding: 2px 0; line-height: 20px; word-break: break-all; overflow-wrap: anywhere; }
+    .line .chip { margin-right: 6px; vertical-align: 1px; }
     .status-planned .text { color: var(--muted); }
     .status-planned .chip, .status-migrating .chip { background: transparent; outline: 1.5px dashed currentColor; outline-offset: -1.5px; }
     .status-migrating .text { color: var(--accent); }
-    .chip { display: inline-block; flex: none; padding: 0 6px; border-radius: 4px; font-size: 11px; font-weight: 700; line-height: 18px; margin-top: 3px; white-space: nowrap; }
+    .chip { display: inline-block; flex: none; padding: 0 6px; border-radius: 4px; font-size: 11px; font-weight: 700; line-height: 18px; white-space: nowrap; }
     \((0 ..< 8).map { ".c\($0) { color: var(--c\($0)-ink); background: var(--c\($0)-bg); }" }.joined(separator: "\n"))
     .legend { display: flex; flex-wrap: wrap; gap: 20px; margin: 12px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
     .legend li { display: inline-flex; align-items: center; gap: 8px; }

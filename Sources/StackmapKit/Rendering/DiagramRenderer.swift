@@ -66,10 +66,13 @@ struct DiagramRenderer {
         return "<path class=\"\(classes)\" \(ends) d=\"\(path)\" marker-end=\"url(#\(anchor.htmlEscaped)-\(style))\"/>"
     }
 
-    /// Connectors from the same client share a color class, `k0` to `k7` by client order.
+    /// Connectors from the same client share a color class by client order. The
+    /// brown and amber tones are skipped so client wires never look like the
+    /// shared-store color.
     private func clientTone(_ edge: DiagramEdge) -> String? {
         guard edge.source.kind == .client, let index = view.clients.firstIndex(where: { $0.id == edge.source.id }) else { return nil }
 
-        return "k\(index % 8)"
+        let tones = [0, 1, 3, 4, 5, 6]
+        return "k\(tones[index % tones.count])"
     }
 }
