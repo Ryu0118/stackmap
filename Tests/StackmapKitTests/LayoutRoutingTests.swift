@@ -35,6 +35,22 @@ struct LayoutRoutingTests {
         #expect(layout.layout(fixture.document).clientConnectorsWithSplitStarts() == [])
     }
 
+    @Test("connectors from one client share their first horizontal run", arguments: LayoutFixture.all)
+    func clientConnectorsShareABus(fixture: LayoutFixture) {
+        // Catches each client connector getting its own lane in the gap below the client, which splits the bus.
+        #expect(layout.layout(fixture.document).clientBusesSplitAcrossLines() == [])
+    }
+
+    @Test("a client calling services in different columns runs its connectors along one line")
+    func clientBusIsOneLine() {
+        let geometry = layout.layout(ScopedDocument(keeping: ConnectorHTMLFixtures.document))
+        let runs = geometry.firstHorizontalRuns(from: NodeID(kind: .client, id: "mobile"))
+
+        // Catches the bus split into one lane per connector; the count guards against a fixture with nothing to compare.
+        #expect(runs.count >= 2)
+        #expect(Set(runs).count == 1)
+    }
+
     @Test("a service's connectors leave from separate points on the left half of its bottom", arguments: LayoutFixture.all)
     func serviceExitPoints(fixture: LayoutFixture) {
         // Catches several connectors leaving one point, or leaving from the right where the own-data link runs.

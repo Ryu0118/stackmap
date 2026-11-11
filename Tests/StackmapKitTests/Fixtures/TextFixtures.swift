@@ -3,6 +3,15 @@ import StackmapKit
 enum TextFixtures {
     static let ownCard = NodeID(kind: .serviceStores, id: "api")
     static let sharedCard = NodeID(kind: .sharedStore, id: "docs")
+    static let serviceCard = NodeID(kind: .service, id: "api")
+
+    /// One service without data whose card carries `description`.
+    static func described(_ description: String) -> ScopedDocument {
+        ScopedDocument(keeping: StackmapDocument(
+            providers: [Provider(id: "edge", label: "Edge")],
+            services: [Service(id: "api", label: "api", description: description, provider: "edge")]
+        ))
+    }
 
     /// One service with one data item on its own provider, labeled `label`.
     static func own(label: String) -> ScopedDocument {

@@ -28,6 +28,33 @@ struct LayoutTextTests {
         #expect(long.height > short.height)
     }
 
+    struct Card: Sendable, CustomTestStringConvertible {
+        var name: String
+        var node: NodeID
+        var document: @Sendable (String) -> ScopedDocument
+        var testDescription: String {
+            name
+        }
+    }
+
+    static let cards = [
+        Card(name: "own-data card", node: TextFixtures.ownCard, document: TextFixtures.own(label:)),
+        Card(name: "shared store card", node: TextFixtures.sharedCard, document: TextFixtures.shared(label:)),
+        Card(name: "service card description", node: TextFixtures.serviceCard, document: TextFixtures.described(_:)),
+    ]
+
+    @Test("a data line or description just wider than its card wraps to a second line", arguments: cards)
+    func barelyTooLongLineWraps(card: Card) throws {
+        let oneLine = try #require(layout.layout(card.document("あ")).frame(of: card.node))
+        // Wide characters at the page's 13 px card font are each at least 13 px wide, so one more
+        // than fits across the whole card cannot fit on one line.
+        let count = oneLine.width / 13 + 1
+        let wrapped = try #require(layout.layout(card.document(String(repeating: "あ", count: count))).frame(of: card.node))
+
+        // Catches a line count rounded down, which keeps a line that is a little too long at one line and cuts it off.
+        #expect(wrapped.height > oneLine.height)
+    }
+
     @Test("a longer data label makes the shared store card taller", arguments: variants)
     func sharedStoreCardGrows(variant: Variant) throws {
         let short = try #require(layout.layout(TextFixtures.shared(label: variant.short)).frame(of: TextFixtures.sharedCard))

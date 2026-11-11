@@ -56,6 +56,21 @@ extension DiagramGeometry {
         }
     }
 
+    /// The height of the first horizontal run of each connector from `client` that has one.
+    func firstHorizontalRuns(from client: NodeID) -> [Int] {
+        edges(from: client).compactMap { edge in
+            edge.segments.first { $0.start.y == $0.end.y && $0.hasLength }?.start.y
+        }
+    }
+
+    /// A client's connectors share their first horizontal run, like a bus.
+    func clientBusesSplitAcrossLines() -> [String] {
+        nodes.filter { $0.nodeID.kind == .client }.compactMap { client in
+            let heights = Set(firstHorizontalRuns(from: client.nodeID))
+            return heights.count > 1 ? "\(client.nodeID) connectors run along \(heights.count) lines: \(heights.sorted())" : nil
+        }
+    }
+
     /// A service's outgoing connectors leave from separate points on the left half of its bottom edge.
     /// Own-data connectors count for separateness; only the other kinds must be on the left half.
     func serviceExitPointProblems() -> [String] {
