@@ -111,8 +111,14 @@ such as `services[1].provider` or `data[0].migration.to`.
 
 - A key the schema does not define is an error, so a typo never silently
   switches something off.
-- An id must start with a letter or digit and contain only letters, digits,
-  `-`, and `_`.
+- An empty file, text that is not YAML, and a root that is not a mapping are
+  reported as malformed YAML.
+- A string value is read as its literal text, so `id: 123` and `id: yes` are
+  the ids `123` and `yes`. A list or mapping where a string belongs, or a
+  list entry that is not a mapping, is a type error at that path
+  (`services[0]`).
+- An id must start with an ASCII letter or digit and contain only ASCII
+  letters, digits, `-`, and `_`. Ids are case-sensitive.
 - Ids must be unique within each list.
 - Every reference (`provider`, `store`, `owner`, `calls`, `scopes`,
   `migration.to`) must name an id that exists in the matching list.
@@ -131,7 +137,8 @@ Rendering one scope keeps:
 - stores that hold kept data, and providers that host kept services or
   stores.
 
-A client's calls to services that are not kept are dropped.
+A client's calls to services that are not kept are dropped. A migration's
+target store is shown by name only; it is not kept as a store on its own.
 
 ## The diagram
 
@@ -141,10 +148,11 @@ The diagram is laid out in rows, top to bottom:
    each service.
 2. Services, inside a band for their provider. Providers appear in the order
    they are declared. Within a provider, services are ordered by their first
-   scope (in the order scopes are declared, unscoped services last) and then
-   by declaration order. When the whole system is rendered and the file
-   declares scopes, consecutive services with the same first scope sit in a
-   scope band.
+   scope (the first entry of their `scopes`, ranked in the order scopes are
+   declared, unscoped services last) and then by declaration order. When the
+   whole system is rendered and the file declares scopes, consecutive
+   services in the same provider with the same first scope sit in a scope
+   band. Unscoped services sit in no scope band.
 3. Under each service, one card listing the data it owns in stores on its own
    provider, each line tagged with the store label.
 4. At the bottom, a band per provider for stores the services reach on

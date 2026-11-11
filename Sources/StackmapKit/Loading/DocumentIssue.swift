@@ -16,7 +16,7 @@ package enum DocumentIssue: Equatable, Sendable, CustomStringConvertible {
     case invalidType(path: String, expected: String)
     /// An unknown `status` value.
     case invalidStatus(path: String, value: String)
-    /// An id that does not match `[A-Za-z0-9][A-Za-z0-9_-]*`.
+    /// An id that does not match the ASCII pattern `[A-Za-z0-9][A-Za-z0-9_-]*`.
     case invalidID(path: String, id: String)
     /// An id used twice within one list; `path` points at the second use.
     case duplicateID(path: String, id: String)
