@@ -113,22 +113,73 @@ struct DocumentLoaderSyntaxTests {
 
     @Test("nested values of the wrong type are reported with their path", arguments: [
         ("serviceExtra", "description: [a]", "services[0].description"),
-        ("scopeExtra", "id: [x]", "scopes[0].id"),
         ("dataExtra", "identifiers: orders", "data[0].identifiers"),
         ("dataExtra", "identifiers: [a, [b]]", "data[0].identifiers[1]"),
-        ("serviceExtra", "scopes: shop", "services[0].scopes"),
     ])
     func wrongNestedType(field: String, line: String, path: String) {
         var builder = YAMLBuilder()
-        switch field {
-        case "serviceExtra": builder.serviceExtra = line
-        case "scopeExtra": builder.scopeExtra = line
-        default: builder.dataExtra = line
+        if field == "serviceExtra" {
+            builder.serviceExtra = line
+        } else {
+            builder.dataExtra = line
         }
         let issues = loader.issues(in: builder.yaml)
 
         // Catches a scalar accepted for a list (or the reverse) at a nested path.
         #expect(issues.invalidTypePaths.contains(path))
+    }
+
+    @Test("a list or mapping where a string belongs is a type error at that key")
+    func wrongTypeForRequiredKeys() {
+        let yaml = """
+        version: 1
+        scopes:
+          - id: [x]
+            label: Shop
+        providers:
+          - id: edge
+            label: Edge
+        services:
+          - id: api
+            label: API
+            provider: edge
+            scopes: shop
+        """
+        let issues = loader.issues(in: yaml)
+
+        // Catches a scalar accepted for a scope list, or a list accepted as an id.
+        #expect(issues.invalidTypePaths.sorted() == ["scopes[0].id", "services[0].scopes"])
+    }
+
+    @Test("a list entry that is not a mapping is a type error at the entry")
+    func entryNotMapping() {
+        let issues = loader.issues(in: "version: 1\nservices:\n  - just text\n")
+
+        // Catches a crash or a different path for a non-mapping entry.
+        #expect(issues.invalidTypePaths == ["services[0]"])
+    }
+
+    @Test("an empty file is malformed YAML", arguments: ["", "\n", "# only a comment\n"])
+    func emptyFile(yaml: String) {
+        // Catches an empty file being reported as a missing version instead.
+        #expect(loader.issues(in: yaml).isSingleMalformedYAML)
+    }
+
+    @Test("string values are read as literal text", arguments: ["123", "yes", "on", "true"])
+    func literalIDs(id: String) throws {
+        let document = try loader.load(yaml: "version: 1\nscopes:\n  - id: \(id)\n    label: Scope\n")
+
+        // Catches YAML scalar typing leaking through: 123 as an Int or yes as a Bool.
+        #expect(document.scopes == [Scope(id: id, label: "Scope")])
+    }
+
+    @Test("Shop and shop are different ids")
+    func idsAreCaseSensitive() throws {
+        let yaml = "version: 1\nscopes:\n  - id: Shop\n    label: A\n  - id: shop\n    label: B\n"
+        let document = try loader.load(yaml: yaml)
+
+        // Catches case folding that would report Shop and shop as duplicates.
+        #expect(document.scopes.map(\.id) == ["Shop", "shop"])
     }
 
     @Test("an unknown status is reported with its value")
