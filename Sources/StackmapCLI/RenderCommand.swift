@@ -1,4 +1,6 @@
 import ArgumentParser
+import Foundation
+import StackmapKit
 
 /// `stackmap render`: reads a stack map file and writes the HTML page.
 ///
@@ -29,6 +31,46 @@ package struct RenderCommand: AsyncParsableCommand {
 
     /// Runs the command.
     package func run() async throws {
-        fatalError("Not implemented")
+        let html = try renderPage()
+
+        if let output {
+            do {
+                try html.write(toFile: output, atomically: true, encoding: .utf8)
+            } catch {
+                throw fail(["cannot write \(output): \(error.localizedDescription)"])
+            }
+        } else {
+            FileHandle.standardOutput.write(Data(html.utf8))
+        }
+    }
+
+    private func renderPage() throws -> String {
+        let text: String
+        do {
+            text = try String(contentsOfFile: config, encoding: .utf8)
+        } catch {
+            throw fail(["cannot read \(config): \(error.localizedDescription)"])
+        }
+
+        let document: StackmapDocument
+        do {
+            document = try DocumentLoader().load(yaml: text)
+        } catch {
+            throw fail(error.issues.map { "\(config): \($0)" })
+        }
+
+        do {
+            return try HTMLRenderer().render(document, selection: scope.map(ScopeSelection.scope) ?? .all)
+        } catch {
+            switch error {
+            case let .unknownScope(id): throw fail(["\(config): no scope with id '\(id)'"])
+            }
+        }
+    }
+
+    private func fail(_ messages: [String]) -> ExitCode {
+        let text = messages.map { "error: \($0)\n" }.joined()
+        FileHandle.standardError.write(Data(text.utf8))
+        return ExitCode.failure
     }
 }
