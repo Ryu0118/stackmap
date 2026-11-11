@@ -44,6 +44,10 @@ mise use -g github:Ryu0118/stackmap
    version: 1
    title: My Platform
 
+   scopes:
+     - id: shop
+       label: Shop
+
    providers:
      - id: edge
        label: Cloudflare
@@ -56,12 +60,14 @@ mise use -g github:Ryu0118/stackmap
    clients:
      - id: mobile
        label: Mobile app
+       scopes: [shop]
        calls: [api]
 
    services:
      - id: api
        label: api
        provider: edge
+       scopes: [shop]
 
    data:
      - id: users
