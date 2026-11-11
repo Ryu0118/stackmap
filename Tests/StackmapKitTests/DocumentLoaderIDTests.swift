@@ -55,6 +55,63 @@ struct DocumentLoaderIDTests {
         #expect(issues == [.invalidID(path: "data[0].id", id: "-bad")])
     }
 
+    @Test("the scope id all is reserved")
+    func reservedScopeID() {
+        let issues = loader.issues(in: "version: 1\nscopes:\n  - id: all\n    label: Everything\n")
+
+        // Catches a scope named all producing a second whole-system section on the page.
+        #expect(issues == [.invalidID(path: "scopes[0].id", id: "all")])
+    }
+
+    @Test("the reserved scope id is reported at the right entry")
+    func reservedScopeIDPath() {
+        let yaml = "version: 1\nscopes:\n  - id: shop\n    label: Shop\n  - id: all\n    label: Everything\n"
+        let issues = loader.issues(in: yaml)
+
+        // Catches the report pointing at the wrong index.
+        #expect(issues == [.invalidID(path: "scopes[1].id", id: "all")])
+    }
+
+    @Test("All with a capital is a valid scope id")
+    func capitalizedAllIsValid() throws {
+        let document = try loader.load(yaml: "version: 1\nscopes:\n  - id: All\n    label: Everything\n")
+
+        // Catches the reservation being applied case-insensitively.
+        #expect(document.scopes.map(\.id) == ["All"])
+    }
+
+    @Test("other lists may use all as an id")
+    func allIsValidOutsideScopes() throws {
+        let yaml = """
+        version: 1
+        providers:
+          - id: all
+            label: Provider
+        stores:
+          - id: all
+            label: Store
+            provider: all
+        clients:
+          - id: all
+            label: Client
+            calls: [all]
+        services:
+          - id: all
+            label: Service
+            provider: all
+        data:
+          - id: all
+            label: Data
+            store: all
+            owner: all
+        """
+        let document = try loader.load(yaml: yaml)
+
+        // Catches the reservation leaking into lists that never render as a scope section.
+        #expect(document.providers.map(\.id) == ["all"])
+        #expect(document.data.map(\.id) == ["all"])
+    }
+
     @Test("a duplicate id is reported at its second use")
     func duplicateIDPointsAtSecondUse() {
         let yaml = """

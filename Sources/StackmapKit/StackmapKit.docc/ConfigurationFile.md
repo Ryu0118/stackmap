@@ -120,6 +120,8 @@ such as `services[1].provider` or `data[0].migration.to`.
   (`services[0]`).
 - An id must start with an ASCII letter or digit and contain only ASCII
   letters, digits, `-`, and `_`. Ids are case-sensitive.
+- The scope id `all` is reserved for the whole-system view and is reported
+  as an invalid id. Other lists may use `all`, and `All` is a different id.
 - Ids must be unique within each list.
 - Every reference (`provider`, `store`, `owner`, `calls`, `scopes`,
   `migration.to`) must name an id that exists in the matching list.
