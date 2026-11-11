@@ -1,31 +1,25 @@
 /// Fixed sizes and gaps of the diagram, in pixels.
 enum LayoutMetrics {
     static let margin = 32
+    static let maxColumns = 4
     static let cardWidth = 208
-    static let clientHeight = 64
-    static let serviceHeight = 72
+    static let columnWidth = storesOffset + storesWidth
     static let storesOffset = 56
     static let storesWidth = 200
-    static let columnWidth = storesOffset + storesWidth
-    static let columnPitch = 304
-    static let providerPitch = 352
     static let sharedWidth = 240
-    static let lineHeight = 24
+    static let minClientHeight = 64
+    static let minServiceHeight = 72
     static let bandPadding = 24
     static let providerLabelHeight = 40
     static let scopeLabelHeight = 36
     static let scopePadding = 12
-    static let busGap = 24
-    static let busStep = 12
     static let cardGap = 48
-    static let laneStart = 12
-    static let laneSpan = 28
-
-    static func storesHeight(lines: Int) -> Int {
-        lineHeight + lineHeight * lines
-    }
-
-    static func sharedHeight(lines: Int) -> Int {
-        providerLabelHeight + lineHeight * lines + scopePadding
-    }
+    static let laneStep = 12
+    static let channelLaneStep = 10
+    static let minChannelWidth = 48
+    static let exitStart = 8
+    static let exitSpan = 44
+    static let clientExit = 32
+    static let entryStart = 90
+    static let entryInset = 12
 }
