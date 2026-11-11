@@ -1,0 +1,144 @@
+version: 1
+title: Example Platform
+
+scopes:
+  - id: shop
+    label: Shop
+  - id: partner
+    label: Partner
+  - id: ops
+    label: Operations
+
+providers:
+  - id: edge
+    label: Cloudflare
+  - id: cloud
+    label: Firebase
+
+stores:
+  - id: sql
+    label: D1
+    provider: edge
+  - id: cache
+    label: KV
+    provider: edge
+  - id: queue
+    label: Queues
+    provider: edge
+  - id: files
+    label: R2
+    provider: edge
+  - id: docs
+    label: Firestore
+    provider: cloud
+  - id: push
+    label: FCM
+    provider: cloud
+
+clients:
+  - id: mobile
+    label: Mobile app
+    description: iOS
+    scopes: [shop]
+    calls: [api]
+  - id: partner-app
+    label: Partner app
+    description: iOS
+    scopes: [partner]
+    calls: [invites, partner-api]
+  - id: chat
+    label: Chat
+    description: Webhooks
+    scopes: [ops]
+    calls: [bot]
+
+services:
+  - id: api
+    label: api
+    description: Public API
+    provider: edge
+    scopes: [shop]
+  - id: themes
+    label: themes
+    description: Report themes
+    provider: edge
+    scopes: [shop]
+  - id: invites
+    label: invites
+    description: Invitations
+    provider: edge
+    scopes: [partner]
+  - id: partner-api
+    label: partner-api
+    description: Partner API
+    provider: edge
+    scopes: [partner]
+  - id: bot
+    label: bot
+    description: Chat bot
+    provider: edge
+    scopes: [ops]
+
+data:
+  - id: users
+    label: Users
+    store: docs
+    owner: api
+    identifiers: [users]
+  - id: posts
+    label: Posts and comments
+    store: docs
+    owner: api
+    identifiers: [posts, comments]
+  - id: notifications
+    label: Notifications
+    store: docs
+    owner: api
+    identifiers: [notifications]
+    status: migrating
+    migration:
+      to: sql
+      note: "#42"
+  - id: public-keys
+    label: Public keys
+    store: cache
+    owner: api
+    identifiers: [PUBLIC_KEYS]
+  - id: side-effects
+    label: Side effects
+    store: queue
+    owner: api
+  - id: themes-table
+    label: Themes
+    store: sql
+    owner: themes
+    identifiers: [themes]
+  - id: invitations
+    label: Invitations
+    store: sql
+    owner: invites
+    identifiers: [invitations, accepts]
+  - id: connections
+    label: Connections
+    store: docs
+    owner: invites
+    identifiers: [follows]
+  - id: partner-notifications
+    label: Partner notifications
+    store: sql
+    owner: partner-api
+    identifiers: [partner_notifications]
+  - id: photos
+    label: Photos
+    store: files
+    owner: partner-api
+    status: planned
+  - id: partner-push
+    label: Push delivery
+    store: push
+    owner: partner-api
+  - id: schedules
+    label: Schedules
+    store: sql
+    owner: bot
+    identifiers: [schedules]
