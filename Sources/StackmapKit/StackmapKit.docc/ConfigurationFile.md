@@ -93,6 +93,7 @@ Every list is optional. `version` is required and must be `1`.
 | `services[].id`, `.label`, `.provider` | string | A deployable service on a provider. |
 | `services[].description` | string | Optional second line. |
 | `services[].scopes` | [string] | Scope ids. |
+| `services[].calls` | [string] | Ids of other services this service calls. |
 | `data[].id`, `.label`, `.store`, `.owner` | string | A piece of data, the store it lives in, and the owning service id. |
 | `data[].scopes` | [string] | Scope ids. Omitted means the owner's scopes. |
 | `data[].identifiers` | [string] | Table, collection, binding, or key names. |
@@ -124,7 +125,10 @@ such as `services[1].provider` or `data[0].migration.to`.
   as an invalid id. Other lists may use `all`, and `All` is a different id.
 - Ids must be unique within each list.
 - Every reference (`provider`, `store`, `owner`, `calls`, `scopes`,
-  `migration.to`) must name an id that exists in the matching list.
+  `migration.to`) must name an id that exists in the matching list. Both
+  `clients[].calls` and `services[].calls` name service ids.
+- A service may not call itself; `services[n].calls[m]` naming service `n`
+  is reported as a self call. A repeated id in `calls` is allowed.
 - `migration` is required when `status` is `migrating`, is not allowed for
   any other status, and `migration.to` must differ from `store`.
 
@@ -140,7 +144,7 @@ Rendering one scope keeps:
 - stores that hold kept data, and providers that host kept services or
   stores.
 
-A client's calls to services that are not kept are dropped. A migration's
+A client's or service's calls to services that are not kept are dropped. A migration's
 target store is shown by name only; it is not kept as a store on its own.
 
 ## The diagram

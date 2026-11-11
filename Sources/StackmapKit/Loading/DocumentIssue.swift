@@ -28,6 +28,8 @@ package enum DocumentIssue: Equatable, Sendable, CustomStringConvertible {
     case migrationNotAllowed(path: String)
     /// `migration.to` names the data's own store; `path` is `data[n].migration.to`.
     case migrationTargetIsSource(path: String)
+    /// A service lists its own id in `calls`; `path` is `services[n].calls[m]`.
+    case selfCall(path: String)
 
     /// A one-line message that starts with the key path when there is one.
     package var description: String {
@@ -44,6 +46,7 @@ package enum DocumentIssue: Equatable, Sendable, CustomStringConvertible {
         case let .migrationRequired(path): "\(path): status 'migrating' needs a migration"
         case let .migrationNotAllowed(path): "\(path): migration is only allowed when status is 'migrating'"
         case let .migrationTargetIsSource(path): "\(path): the migration target is the data's own store"
+        case let .selfCall(path): "\(path): a service cannot call itself"
         }
     }
 }
