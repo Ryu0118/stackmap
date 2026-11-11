@@ -6,7 +6,8 @@ package struct StackmapCommand: AsyncParsableCommand {
     package static let configuration = CommandConfiguration(
         commandName: "stackmap",
         abstract: "Render a tech stack map from a YAML file.",
-        version: StackmapVersion.current
+        version: StackmapVersion.current,
+        subcommands: [RenderCommand.self]
     )
 
     /// Creates the command; ArgumentParser fills in options after parsing.

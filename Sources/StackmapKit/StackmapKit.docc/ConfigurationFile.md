@@ -114,7 +114,8 @@ such as `services[1].provider` or `data[0].migration.to`.
 - An empty file, text that is not YAML, and a root that is not a mapping are
   reported as malformed YAML.
 - A string value is read as its literal text, so `id: 123` and `id: yes` are
-  the ids `123` and `yes`. A list or mapping where a string belongs, or a
+  the ids `123` and `yes`. A null value (`id:` or `id: null`) counts as
+  missing. A list or mapping where a string belongs, or a
   list entry that is not a mapping, is a type error at that path
   (`services[0]`).
 - An id must start with an ASCII letter or digit and contain only ASCII
