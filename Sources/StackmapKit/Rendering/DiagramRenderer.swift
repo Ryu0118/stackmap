@@ -14,16 +14,25 @@ struct DiagramRenderer {
         let cards = CardRenderer(context: context, view: view)
         let bands = geometry.bands.map(bandRect).joined()
         let edges = geometry.edges.map(edgePath).joined()
+        let focus = EdgeFocusStyle.css(for: geometry.nodes.map(\.nodeID))
         let labels = geometry.bands.map(bandLabel).joined()
         let nodes = geometry.nodes.map(cards.render).joined()
         return """
         <div class="diagram-scroll"><div class="diagram" style="width:\(geometry.width)px;height:\(geometry.height)px">\
         <svg class="wires" width="\(geometry.width)" height="\(geometry.height)" viewBox="0 0 \(geometry.width) \(geometry.height)" aria-hidden="true">\
-        <defs>\(marker("plain"))\(marker("shared"))</defs>\(bands)\(edges)</svg>\(labels)\(nodes)</div></div>
+        <defs>\(markers)</defs>\(bands)\(edges)</svg>\(labels)\(nodes)<style>\(focus)</style></div></div>
         <ul class="legend"><li><span class="swatch swatch-call"></span>Calls and owns</li>\
         <li><span class="swatch swatch-shared"></span>Owns data on another provider</li>\
         <li><span class="swatch swatch-planned"></span>Planned or migrating</li></ul>
         """
+    }
+
+    private var markers: String {
+        (["plain", "shared"] + (0 ..< 8).map { "k\($0)" }).map(marker).joined()
+    }
+
+    static func attribute(_ node: NodeID) -> String {
+        "\(node.kind.rawValue):\(node.id)".htmlEscaped
     }
 
     private func marker(_ style: String) -> String {
@@ -50,6 +59,17 @@ struct DiagramRenderer {
 
         let points = edge.segments.map { " L\($0.end.x) \($0.end.y)" }.joined()
         let path = "M\(first.start.x) \(first.start.y)\(points)"
-        return "<path class=\"edge edge-\(edge.kind.rawValue)\" d=\"\(path)\" marker-end=\"url(#\(anchor.htmlEscaped)-\(edge.kind == .sharedStore ? "shared" : "plain"))\"/>"
+        let tone = clientTone(edge)
+        let style = tone ?? (edge.kind == .sharedStore ? "shared" : "plain")
+        let classes = "edge edge-\(edge.kind.rawValue)" + (tone.map { " \($0)" } ?? "")
+        let ends = "data-source=\"\(Self.attribute(edge.source))\" data-target=\"\(Self.attribute(edge.target))\""
+        return "<path class=\"\(classes)\" \(ends) d=\"\(path)\" marker-end=\"url(#\(anchor.htmlEscaped)-\(style))\"/>"
+    }
+
+    /// Connectors from the same client share a color class, `k0` to `k7` by client order.
+    private func clientTone(_ edge: DiagramEdge) -> String? {
+        guard edge.source.kind == .client, let index = view.clients.firstIndex(where: { $0.id == edge.source.id }) else { return nil }
+
+        return "k\(index % 8)"
     }
 }
